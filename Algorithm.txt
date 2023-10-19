@@ -1,0 +1,115 @@
+// Initialize data structures:
+Define MAX_PROCESSES as 5
+Define MAX_RESOURCES as 3
+
+Create an available array with length MAX_RESOURCES and set its values: [3, 3, 2]
+
+Create a maximum matrix with dimensions MAX_PROCESSES x MAX_RESOURCES and set its values:
+[
+    [7, 5, 3],
+    [3, 2, 2],
+    [9, 0, 2],
+    [2, 2, 2],
+    [4, 3, 3]
+]
+
+Create an allocated matrix with dimensions MAX_PROCESSES x MAX_RESOURCES and set its values:
+[
+    [0, 1, 0],
+    [2, 0, 0],
+    [3, 0, 2],
+    [2, 1, 1],
+    [0, 0, 2]
+]
+
+Function isSafe(process, request):
+    // Calculate the need matrix
+    Create a need matrix with dimensions MAX_PROCESSES x MAX_RESOURCES
+    for i from 0 to MAX_PROCESSES - 1:
+        for j from 0 to MAX_RESOURCES - 1:
+            need[i][j] = maximum[i][j] - allocated[i][j]
+
+    // Check if the request is less than or equal to the need
+    for i from 0 to MAX_RESOURCES - 1:
+        if request[i] > need[process][i]:
+            Return 0  // Request exceeds need
+
+    // Temporarily allocate resources
+    for i from 0 to MAX_RESOURCES - 1:
+        available[i] -= request[i]
+        allocated[process][i] += request[i]
+        need[process][i] -= request[i]
+
+    // Check if the system is still in a safe state
+    Create a work array with length MAX_RESOURCES
+    Create a finish array with length MAX_PROCESSES and initialize it with zeros
+
+    // Initialize the work array with available resources
+    for i from 0 to MAX_RESOURCES - 1:
+        work[i] = available[i]
+
+    Create a safeSequence array with length MAX_PROCESSES
+    Initialize count to 0
+
+    // Check for a safe sequence
+    while count < MAX_PROCESSES:
+        found = 0
+        for i from 0 to MAX_PROCESSES - 1:
+            if finish[i] is 0:
+                for j from 0 to MAX_RESOURCES - 1:
+                    if need[i][j] > work[j]:
+                        break
+
+                if j equals MAX_RESOURCES:
+                    // Resource request can be granted
+                    for k from 0 to MAX_RESOURCES - 1:
+                        work[k] += allocated[i][k]
+                    safeSequence[count] = i
+                    finish[i] = 1
+                    count++
+                    found = 1
+
+        // If no process could be allocated, the system is not in a safe state
+        if found is 0:
+            break
+
+    // Restore the resource allocation
+    if count equals MAX_PROCESSES:
+        Return 1  // Request is safe and can be allocated
+    else:
+        // Request is not safe, so restore the previous state
+        for i from 0 to MAX_RESOURCES - 1:
+            available[i] += request[i]
+            allocated[process][i] -= request[i]
+            need[process][i] += request[i]
+        Return 0  // Request is not safe
+
+Function main():
+    // Initialize the available, maximum, and allocated matrices
+    // You should modify these values according to your needs
+    process = 0
+    request[MAX_RESOURCES] = [2, 1, 0]
+
+    // Check if the request is safe and allocate if possible
+    if isSafe(process, request) equals 1:
+        Print "Request granted. Resources allocated."
+        
+        // Calculate the safe sequence
+        Create a safeSequence array with length MAX_PROCESSES
+        Initialize count to 0
+        for i from 0 to MAX_PROCESSES - 1:
+            current_process = isSafe(i, request)
+            if current_process equals 1:
+                safeSequence[count] = i
+                count++
+
+        Print "Safe Sequence: "
+        for i from 0 to count - 1:
+            if i > 0:
+                Print " -> "
+            Print "P" + safeSequence[i]
+    else:
+        Print "Request denied. Resources not allocated. System is in an unsafe state."
+        Print "Problem arises with Process P" + process
+
+    Return 0
